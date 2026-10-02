@@ -19,6 +19,7 @@
 #include "ctimer.h"
 #include "allocTracer.h"
 #include "mallocTracer.h"
+#include "mmapTracer.h"
 #include "lockTracer.h"
 #include "nativeLockTracer.h"
 #include "wallClock.h"
@@ -58,6 +59,7 @@ static Engine noop_engine;
 static PerfEvents perf_events;
 static AllocTracer alloc_tracer;
 static MallocTracer malloc_tracer;
+static MmapTracer mmap_tracer;
 static LockTracer lock_tracer;
 static NativeLockTracer native_lock_tracer;
 static ObjectSampler object_sampler;
@@ -817,6 +819,8 @@ Engine* Profiler::activeEngine() {
             return &lock_tracer;
         case 1 << EC_WALL:
             return &wall_clock;
+        case 1 << EC_MMAP:
+            return &mmap_tracer;
         case 1 << EC_NATIVEMEM:
             return &malloc_tracer;
         case 1 << EC_NATIVELOCK:
@@ -884,6 +888,10 @@ Error Profiler::start(Arguments& args, bool reset) {
         return error;
     }
 
+    if (args._mmap && (args._output != OUTPUT_JFR || args._jfr_sync || !args._trace.empty() ||
+        (args._event && strchr(args._event, '.')))) {
+        return Error("mmap requires standalone JFR output and cannot be combined with method tracing");
+    }
     _event_mask = args.eventMask();
 
     if (_event_mask == 0) {
@@ -1066,6 +1074,15 @@ Error Profiler::start(Arguments& args, bool reset) {
         }
     }
 
+    if (hasEvent(EC_MMAP)) {
+        error = mmap_tracer.start(args);
+        if (error) {
+            mmap_tracer.stop();
+            if (hasEvent(EC_TRACE)) instrument.stop();
+            goto error7;
+        }
+    }
+
     switchThreadEvents(JVMTI_ENABLE);
 
     _state = RUNNING;
@@ -1120,6 +1137,7 @@ Error Profiler::stop(bool restart) {
 
     uninstallTraps();
 
+    if (hasEvent(EC_MMAP)) mmap_tracer.stop();
     if (hasEvent(EC_WALL)) wall_clock.stop();
     if (hasEvent(EC_LOCK)) lock_tracer.stop();
     if (hasEvent(EC_ALLOC)) _alloc_engine->stop();
@@ -1630,6 +1648,7 @@ Error Profiler::runInternal(Arguments& args, Writer& out) {
             out << "  " << EVENT_CPU << "\n";
             out << "  " << EVENT_ALLOC << "\n";
             out << "  " << EVENT_NATIVEMEM << "\n";
+            out << "  mmap (JNA interface mapping, JFR only)\n";
             out << "  " << EVENT_LOCK << "\n";
             out << "  " << EVENT_NATIVELOCK << "\n";
             out << "  " << EVENT_WALL << "\n";

@@ -73,11 +73,11 @@ TEST_FLAGS=-DlogDir=$(LOG_DIR) -DlogLevel=$(LOG_LEVEL) -Dskip='$(subst $(COMMA),
 SOURCES := $(sort $(wildcard src/*.cpp))
 HEADERS := $(wildcard src/*.h)
 RESOURCES := $(wildcard src/res/*)
-JAVA_HELPER_CLASSES := $(wildcard src/helper/one/profiler/*.class)
+JAVA_HELPER_CLASSES := $(wildcard src/helper/one/profiler/*.class) src/helper/one/profiler/MmapBridge.class
 API_SOURCES := $(wildcard src/api/one/profiler/*.java)
 JAR_MANIFEST := src/api/META-INF/MANIFEST.MF
 CONVERTER_SOURCES := $(shell find src/converter -type f)
-TEST_SOURCES := $(shell find test -name '*.java' ! -path 'test/stubs/*')
+TEST_SOURCES := $(shell find test -name '*.java' ! -path 'test/stubs/*' ! -path 'test/mmap/*')
 TESTS ?=
 CPP_TEST_SOURCES := test/native/testRunner.cpp $(shell find test/native -name '*Test.cpp')
 CPP_TEST_HEADER := test/native/testRunner.hpp
