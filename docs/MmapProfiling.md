@@ -12,6 +12,16 @@ export JAVA_HOME=/path/to/jdk
 bash scripts/build-mmap.sh
 ```
 
+If Linux linking fails with `cannot find -lstdc++` and a message about the static library, the default build requires a static C++ runtime archive that may be missing from the installed toolchain. To use the installed shared C++ runtime instead (no package download):
+
+```sh
+STATIC_CPP_RUNTIME=false bash scripts/build-mmap.sh
+```
+
+For a direct make invocation, pass `STATIC_CPP_RUNTIME=false`. The default remains static linkage. When changing this option after an already successful build, remove only `build/lib/libasyncProfiler.so` to force relinking; Make does not track flag changes. A failed link is rebuilt automatically.
+
+Dynamic linkage requires the corresponding shared `libstdc++.so.6` and libgcc runtime on the target machine. Build with the target machine's toolchain. If the toolchain cannot link even a dynamic C++ program, its development libraries must be supplied offline; this option cannot replace missing shared libraries.
+
 Build on RHEL for RHEL. A macOS dylib is not a Linux shared library.
 
 ## Record and convert

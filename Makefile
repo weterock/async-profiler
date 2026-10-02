@@ -38,6 +38,7 @@ OBJCOPY := $(CROSS_COMPILE)objcopy
 endif
 
 CFLAGS_EXTRA ?=
+STATIC_CPP_RUNTIME ?= true
 CXXFLAGS_EXTRA ?=
 CFLAGS=-O3 -fno-exceptions $(CFLAGS_EXTRA)
 CXXFLAGS=-O3 -fno-exceptions -fno-rtti -fno-omit-frame-pointer -fvisibility=hidden -std=c++11 $(CXXFLAGS_EXTRA)
@@ -104,7 +105,10 @@ ifeq ($(OS),Darwin)
     MERGE=false
   endif
 else
-  CXXFLAGS += -U_FORTIFY_SOURCE -Wl,-z,defs -Wl,--exclude-libs,ALL -static-libstdc++ -static-libgcc
+  CXXFLAGS += -U_FORTIFY_SOURCE -Wl,-z,defs -Wl,--exclude-libs,ALL
+  ifeq ($(STATIC_CPP_RUNTIME),true)
+    CXXFLAGS += -static-libstdc++ -static-libgcc
+  endif
   CXXFLAGS += -fdata-sections -ffunction-sections -Wl,--gc-sections -ggdb -Wunused-variable -Wno-psabi
   ifeq ($(MERGE),true)
     CXXFLAGS += -fwhole-program
