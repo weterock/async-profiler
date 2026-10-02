@@ -11,9 +11,10 @@ class MmapTracer : public Engine {
     static std::atomic<bool> transforming;
     static std::atomic<unsigned long long> lost;
     static bool transform(jvmtiEnv*, const char*, jint, const u8*, jint*, u8**);
+    static void installHooks();
     static unsigned long long dropped() { return lost.load(); }
-    const char* type() { return "jna_mmap_tracer"; }
-    const char* title() { return "JNA memory mappings"; }
+    const char* type() { return "mmap_tracer"; }
+    const char* title() { return "Memory mappings"; }
     const char* units() { return "bytes"; }
     Error start(Arguments& args);
     void stop();

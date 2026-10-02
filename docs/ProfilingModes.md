@@ -348,4 +348,4 @@ asprof --loop 1h -f /var/log/profile-%t.jfr 8983
 
 ## Experimental JNA memory mappings (this fork)
 
-See [JNA mmap profiling](MmapProfiling.md) for `asprof -e mmap`, JFR capture, and `jfrconv --mmap --leak`. This backend covers JNA interface calls, not arbitrary native mappings.
+See [mmap profiling](MmapProfiling.md) for `asprof -e mmap`, JFR capture, and `jfrconv --mmap --leak`. This mode covers libc imports and JNA interface calls; direct syscalls and mremap are not covered.

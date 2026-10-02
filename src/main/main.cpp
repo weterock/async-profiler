@@ -73,7 +73,7 @@ static const char USAGE_STRING[] =
     "  --tlab              use TLAB events for allocation profiling\n"
     "  --live              build allocation profile from live objects only\n"
     "  --nativemem bytes   native allocation profiling interval in bytes\n"
-    "  --mmap              record JNA mmap/munmap (JFR only)\n"
+    "  --mmap              record libc/JNA mmap/munmap (JFR only)\n"
     "  --nofree            do not collect free calls in native allocation profiling\n"
     "  --trace method      Method to be instrumented with optional latency threshold\n"
     "  --lock time         lock profiling threshold in nanoseconds\n"

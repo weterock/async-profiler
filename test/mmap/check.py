@@ -32,7 +32,8 @@ def until(prefix):
 def asprof(*args):
     subprocess.run([str(root/'build/bin/asprof'), *args, str(p.pid)], check=True, timeout=40)
 def convert(file, *options):
-    subprocess.run([str(java), '-jar', str(root/'build/jar/jfr-converter.jar'), '--mmap', *options,
+    subprocess.run([str(java), '-jar', str(root/'build/jar/jfr-converter.jar'), '--mmap',
+                    '--include', '.*com.sun.jna.Native.invokeLong.*', *options,
                     str(output/'mappings.jfr'), str(output/file)], check=True, timeout=40)
 def total(file):
     lines = (output/file).read_text().splitlines()
